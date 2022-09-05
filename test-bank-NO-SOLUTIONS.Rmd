@@ -1,0 +1,1833 @@
+---
+title: 'Trade Policy Test Bank'
+author: 'Mauricio "Pacha" Vargas Sepúlveda'
+date: 'Last update: `r Sys.time()`'
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
+library(tradepolicy)
+```
+
+# Partial equilibrium
+
+## Elasticity
+
+### Question 1
+
+Use the next code to create the dataset `elasticity_data`:
+
+```{r q1}
+elasticity_data <- agtpa_applications %>% 
+  filter(
+    year == 2006,
+    trade > 0,
+    exporter %in% c("CHN","JPN","KOR")
+  ) %>% 
+  group_by(exporter, year) %>% 
+  mutate(
+    y = sum(trade),
+    log_y = log(y)
+  ) %>% 
+  group_by(importer, year) %>% 
+  mutate(
+    e = sum(trade),
+    log_e = log(e)
+  ) %>% 
+  mutate(log_trade = log(trade), log_dist = log(dist))
+```
+
+Then fit the model `log_trade ~ log_dist + cntg + lang + clny + log_y + log_e`. 
+
+What can you say about `log_dist` in terms of elasticities?
+
+a) The value $\beta_{\text{log dist}}$ tells us that `trade` is inelastic to `distance`, as the estimated coefficient is less than one.
+b) The value $\beta_{\text{log dist}}$ tells us that `trade` is inelastic to `distance`, as the absolute value of the estimated coefficient is less than one.
+c) We need more information.
+d) None of the above.
+
+### Question 2
+
+Use the next code to create the dataset `elasticity_data`:
+
+```{r q2}
+elasticity_data <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2), 
+    trade > 0,
+    exporter %in% c("AUS","FRA","USA")
+  ) %>% 
+  group_by(exporter, year) %>% 
+  mutate(
+    y = sum(trade),
+    log_y = log(y)
+  ) %>% 
+  group_by(importer, year) %>% 
+  mutate(
+    e = sum(trade),
+    log_e = log(e)
+  ) %>% 
+  mutate(log_trade = log(trade), log_dist = log(dist))
+```
+
+Then fit the model `log_trade ~ log_dist + cntg + lang + clny + log_y + log_e`. 
+
+What can you say about `log_dist` in terms of elasticities?
+
+a) The value $\beta_{\text{log dist}}$ tells us that `trade` is inelastic to `distance`, as the estimated coefficient is less than one.
+b) The value $\beta_{\text{log dist}}$ tells us that `trade` is elastic to `distance`, as the absolute value of the estimated coefficient is more than one.
+c) We need more information.
+d) None of the above.
+
+### Question 3
+
+Use the next code to create the dataset `elasticity_data`:
+
+```{r q3}
+elasticity_data <- agtpa_applications %>% 
+  filter(
+    year == 2002,
+    trade > 0,
+    exporter %in% c("AUS","IND","CHN")
+  ) %>% 
+  group_by(exporter, year) %>% 
+  mutate(
+    y = sum(trade),
+    log_y = log(y)
+  ) %>% 
+  group_by(importer, year) %>% 
+  mutate(
+    e = sum(trade),
+    log_e = log(e)
+  ) %>% 
+  mutate(log_trade = log(trade), log_dist = log(dist))
+```
+
+Then fit the model `log_trade ~ log_dist + cntg + lang + clny + log_y + log_e`. 
+
+What can you say about `log_dist` in terms of elasticities?
+
+a) The value $\beta_{\text{log dist}}$ tells us that `trade` is inelastic to `distance`, as the estimated coefficient is less than one.
+b) The value $\beta_{\text{log dist}}$ tells us that `trade` is inelastic to `distance`, as the absolute value of the estimated coefficient is less than one.
+c) We need more information.
+d) None of the above.
+
+### Question 4
+
+Use the next code to create the dataset `elasticity_data`:
+
+```{r q4}
+elasticity_data <- agtpa_applications %>% 
+  filter(
+    year == 2002,
+    trade > 0,
+    exporter %in% c("THA","PHL","IDN")
+  ) %>% 
+  group_by(exporter, year) %>% 
+  mutate(
+    y = sum(trade),
+    log_y = log(y)
+  ) %>% 
+  group_by(importer, year) %>% 
+  mutate(
+    e = sum(trade),
+    log_e = log(e)
+  ) %>% 
+  mutate(log_trade = log(trade), log_dist = log(dist))
+```
+
+Then fit the model `log_trade ~ log_dist + cntg + lang + clny + log_y + log_e`. 
+
+What can you say about `log_dist` in terms of elasticities?
+
+a) The value $\beta_{\text{log dist}}$ tells us that `trade` is inelastic to `distance`, as the estimated coefficient is less than one.
+b) The value $\beta_{\text{log dist}}$ tells us that `trade` is inelastic to `distance`, as the absolute value of the estimated coefficient is less than one.
+c) We need more information.
+d) None of the above.
+
+## RESET test
+
+### Question 5
+
+Run the next code to obtain a regression summary:
+
+```{r q5}
+ch1_application1_2 <- agtpa_applications %>%
+  filter(year %in% seq(1986, 2006, 4))
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  mutate(
+    log_trade = log(trade),
+    log_dist = log(dist)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  # Create Yit
+  group_by(exporter, year) %>%
+  mutate(
+    y = sum(trade),
+    log_y = log(y)
+  ) %>%
+
+  # Create Eit
+  group_by(importer, year) %>%
+  mutate(
+    e = sum(trade),
+    log_e = log(e)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  # Replicate total_e
+  group_by(exporter, year) %>%
+  mutate(total_e = sum(e)) %>%
+  group_by(year) %>%
+  mutate(total_e = max(total_e)) %>%
+
+  # Replicate rem_exp
+  group_by(exporter, year) %>%
+  mutate(
+    remoteness_exp = sum(dist *  total_e / e),
+    log_remoteness_exp = log(remoteness_exp)
+  ) %>%
+
+  # Replicate total_y
+  group_by(importer, year) %>%
+  mutate(total_y = sum(y)) %>%
+  group_by(year) %>%
+  mutate(total_y = max(total_y)) %>%
+
+  # Replicate rem_imp
+  group_by(importer, year) %>%
+  mutate(
+    remoteness_imp = sum(dist / (y / total_y)),
+    log_remoteness_imp = log(remoteness_imp)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  # This merges the columns exporter/importer with year
+  mutate(
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  filter(exporter != importer)
+
+my_summary <- tp_summary_app_1(
+  formula = "log_trade ~ log_dist + cntg + lang + clny + log_y + log_e",
+  data = filter(ch1_application1_2, trade > 0),
+  method = "ols"
+)
+
+my_summary
+```
+
+What can you say about the RESET test p-value?
+
+a) The model doesn't pass the misspecification test because the obtained p-value is below the critical p-value 0.05 (or any other common value).
+b) The model passes the misspecification test because the obtained p-value is below the critical p-value 0.05 (or any other common value).
+c) We need more information
+d) None of the above
+
+### Question 6
+
+We are given the next regression summary:
+
+```{r q6, echo=FALSE}
+ch1_application1_2 <- agtpa_applications %>%
+  filter(year %in% seq(1986, 2006, 4))
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  mutate(
+    log_trade = log(trade),
+    log_dist = log(dist)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  # Create Yit
+  group_by(exporter, year) %>%
+  mutate(
+    y = sum(trade),
+    log_y = log(y)
+  ) %>%
+
+  # Create Eit
+  group_by(importer, year) %>%
+  mutate(
+    e = sum(trade),
+    log_e = log(e)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  # Replicate total_e
+  group_by(exporter, year) %>%
+  mutate(total_e = sum(e)) %>%
+  group_by(year) %>%
+  mutate(total_e = max(total_e)) %>%
+
+  # Replicate rem_exp
+  group_by(exporter, year) %>%
+  mutate(
+    remoteness_exp = sum(dist *  total_e / e),
+    log_remoteness_exp = log(remoteness_exp)
+  ) %>%
+
+  # Replicate total_y
+  group_by(importer, year) %>%
+  mutate(total_y = sum(y)) %>%
+  group_by(year) %>%
+  mutate(total_y = max(total_y)) %>%
+
+  # Replicate rem_imp
+  group_by(importer, year) %>%
+  mutate(
+    remoteness_imp = sum(dist / (y / total_y)),
+    log_remoteness_imp = log(remoteness_imp)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  # This merges the columns exporter/importer with year
+  mutate(
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  filter(exporter != importer)
+
+my_summary <- tp_summary_app_1(
+  formula = "log_trade ~ log_dist + cntg + lang + clny + log_y + log_e +
+    log_remoteness_exp + log_remoteness_imp",
+  data = filter(ch1_application1_2, trade > 0),
+  method = "ols"
+)
+
+my_summary
+```
+
+What can you say about the RESET test p-value?
+
+a) The model doesn't pass the misspecification test because the obtained p-value is below the critical p-value 0.05 (or any other common value).
+b) The model passes the misspecification test because the obtained p-value is below the critical p-value 0.05 (or any other common value).
+c) We need more information
+d) None of the above
+
+### Question 7
+
+We are given the next regression summary:
+
+```{r q7, echo=FALSE}
+ch1_application1_2 <- agtpa_applications %>%
+  filter(year %in% seq(1986, 2006, 4))
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  mutate(
+    log_trade = log(trade),
+    log_dist = log(dist)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  # Create Yit
+  group_by(exporter, year) %>%
+  mutate(
+    y = sum(trade),
+    log_y = log(y)
+  ) %>%
+
+  # Create Eit
+  group_by(importer, year) %>%
+  mutate(
+    e = sum(trade),
+    log_e = log(e)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  # Replicate total_e
+  group_by(exporter, year) %>%
+  mutate(total_e = sum(e)) %>%
+  group_by(year) %>%
+  mutate(total_e = max(total_e)) %>%
+
+  # Replicate rem_exp
+  group_by(exporter, year) %>%
+  mutate(
+    remoteness_exp = sum(dist *  total_e / e),
+    log_remoteness_exp = log(remoteness_exp)
+  ) %>%
+
+  # Replicate total_y
+  group_by(importer, year) %>%
+  mutate(total_y = sum(y)) %>%
+  group_by(year) %>%
+  mutate(total_y = max(total_y)) %>%
+
+  # Replicate rem_imp
+  group_by(importer, year) %>%
+  mutate(
+    remoteness_imp = sum(dist / (y / total_y)),
+    log_remoteness_imp = log(remoteness_imp)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  # This merges the columns exporter/importer with year
+  mutate(
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  filter(exporter != importer)
+
+my_summary <- tp_summary_app_1(
+  formula = "log_trade ~ log_dist + cntg + lang + clny | exp_year + imp_year",
+  data = filter(ch1_application1_2, trade > 0),
+  method = "ols"
+)
+
+my_summary
+```
+
+What can you say about the RESET test p-value?
+
+a) The model doesn't pass the misspecification test because the obtained p-value is below the critical p-value 0.05 (or any other common value).
+b) The model passes the misspecification test because the obtained p-value is below the critical p-value 0.05 (or any other common value).
+c) We need more information
+d) None of the above
+
+### Question 8
+
+We are given the next regression summary:
+
+```{r q8, echo=FALSE}
+ch1_application1_2 <- agtpa_applications %>%
+  filter(year %in% seq(1986, 2006, 4))
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  mutate(
+    log_trade = log(trade),
+    log_dist = log(dist)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  # Create Yit
+  group_by(exporter, year) %>%
+  mutate(
+    y = sum(trade),
+    log_y = log(y)
+  ) %>%
+
+  # Create Eit
+  group_by(importer, year) %>%
+  mutate(
+    e = sum(trade),
+    log_e = log(e)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  # Replicate total_e
+  group_by(exporter, year) %>%
+  mutate(total_e = sum(e)) %>%
+  group_by(year) %>%
+  mutate(total_e = max(total_e)) %>%
+
+  # Replicate rem_exp
+  group_by(exporter, year) %>%
+  mutate(
+    remoteness_exp = sum(dist *  total_e / e),
+    log_remoteness_exp = log(remoteness_exp)
+  ) %>%
+
+  # Replicate total_y
+  group_by(importer, year) %>%
+  mutate(total_y = sum(y)) %>%
+  group_by(year) %>%
+  mutate(total_y = max(total_y)) %>%
+
+  # Replicate rem_imp
+  group_by(importer, year) %>%
+  mutate(
+    remoteness_imp = sum(dist / (y / total_y)),
+    log_remoteness_imp = log(remoteness_imp)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  # This merges the columns exporter/importer with year
+  mutate(
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year)
+  )
+
+ch1_application1_2 <- ch1_application1_2 %>%
+  filter(exporter != importer)
+
+my_summary <- tp_summary_app_1(
+  formula = "trade ~ log_dist + cntg + lang + clny | exp_year + imp_year",
+  data = ch1_application1_2,
+  method = "ppml"
+)
+
+my_summary
+```
+
+What can you say about the RESET test p-value?
+
+a) The model doesn't pass the misspecification test because the obtained p-value is above the critical p-value 0.05 (or any other common value).
+b) The model passes the misspecification test because the obtained p-value is above the critical p-value 0.05 (or any other common value).
+c) We need more information
+d) None of the above
+
+## Distance puzzle
+
+### Question 9
+
+Suppose that now we are interested in the OLS version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q9, eval = FALSE}
+ols_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("CHN","JPN","KOR")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1)
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "log_trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 + cntg +
+    lang + clny | exp_year + imp_year",
+  data = filter(ols_puzzle, importer != exporter, trade > 0),
+  method = "ols"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) show a significant decrease on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 10
+
+Suppose that now we are interested in the OLS version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q10, eval = FALSE}
+ols_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("AUS","FRA","USA")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1)
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "log_trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 + cntg +
+    lang + clny | exp_year + imp_year",
+  data = filter(ols_puzzle, importer != exporter, trade > 0),
+  method = "ols"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) show a significant decrease on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 11
+
+Suppose that now we are interested in the OLS version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q11, eval = FALSE}
+ols_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("AUS","IND","CHN")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1)
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "log_trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 + cntg +
+    lang + clny | exp_year + imp_year",
+  data = filter(ols_puzzle, importer != exporter, trade > 0),
+  method = "ols"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) show a significant decrease on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 12
+
+Suppose that now we are interested in the OLS version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q12, eval = FALSE}
+ols_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("THA","PHL","IDN")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1)
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "log_trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 + cntg +
+    lang + clny | exp_year + imp_year",
+  data = filter(ols_puzzle, importer != exporter, trade > 0),
+  method = "ols"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) show a significant decrease on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 13
+
+Suppose that now we are interested in the PPML version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q13, eval = FALSE}
+ppml_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("CHN","JPN","KOR")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny | exp_year + imp_year",
+  data = filter(ppml_puzzle, importer != exporter),
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 14
+
+Suppose that now we are interested in the PPML version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q14, eval = FALSE}
+ppml_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("AUS","FRA","USA")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny | exp_year + imp_year",
+  data = filter(ppml_puzzle, importer != exporter),
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 15
+
+Suppose that now we are interested in the PPML version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q15, eval = FALSE}
+ppml_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("AUS","IND","CHN")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny | exp_year + imp_year",
+  data = filter(ppml_puzzle, importer != exporter),
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 16
+
+Suppose that now we are interested in the PPML version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q16, eval = FALSE}
+ppml_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("THA","PHL","IDN")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny | exp_year + imp_year",
+  data = filter(ppml_puzzle, importer != exporter),
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 17
+
+Suppose that now we are interested in the Internal Distance version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q17, eval = FALSE}
+intra_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("CHN","JPN","KOR")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny + log_dist_intra | exp_year + imp_year",
+  data = intra_puzzle,
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 18
+
+Suppose that now we are interested in the Internal Distance version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q18, eval = FALSE}
+intra_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("AUS","FRA","USA")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny + log_dist_intra | exp_year + imp_year",
+  data = intra_puzzle,
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 19
+
+Suppose that now we are interested in the Internal Distance version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q19, eval = FALSE}
+intra_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("AUS","IND","CHN")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny + log_dist_intra | exp_year + imp_year",
+  data = intra_puzzle,
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 20
+
+Suppose that now we are interested in the Internal Distance version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q20, eval = FALSE}
+intra_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("THA","PHL","IDN")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny + log_dist_intra | exp_year + imp_year",
+  data = intra_puzzle,
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 21
+
+Suppose that now we are interested in the Internal Distance and Home Bias version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q21, eval = FALSE}
+brdr_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("CHN","JPN","KOR")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny + log_dist_intra + smctry | exp_year + imp_year",
+  data = brdr_puzzle,
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 22
+
+Suppose that now we are interested in the Internal Distance and Home Bias version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q22, eval = FALSE}
+brdr_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("AUS","FRA","USA")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny + log_dist_intra + smctry | exp_year + imp_year",
+  data = brdr_puzzle,
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 23
+
+Suppose that now we are interested in the Internal Distance and Home Bias version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q23, eval = FALSE}
+brdr_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("AUS","IND","CHN")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny + log_dist_intra + smctry | exp_year + imp_year",
+  data = brdr_puzzle,
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 24
+
+Suppose that now we are interested in the Internal Distance and Home Bias version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q24, eval = FALSE}
+brdr_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("THA","PHL","IDN")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny + log_dist_intra + smctry | exp_year + imp_year",
+  data = brdr_puzzle,
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 25
+
+Suppose that now we are interested in the Fixed Effects version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q25, eval = FALSE}
+fe_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("CHN","JPN","KOR")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny + intra_pair | exp_year + imp_year",
+  data = fe_puzzle,
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 26
+
+Suppose that now we are interested in the Fixed Effects version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q26, eval = FALSE}
+fe_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("AUS","FRA","USA")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny + intra_pair | exp_year + imp_year",
+  data = fe_puzzle,
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 27
+
+Suppose that now we are interested in the Fixed Effects version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q27, eval = FALSE}
+fe_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("AUS","IND","CHN")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny + intra_pair | exp_year + imp_year",
+  data = fe_puzzle,
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+### Question 28
+
+Suppose that now we are interested in the Fixed Effects version of the distance puzzle. Complete the next code to fit the model:
+
+```{r q28, eval = FALSE}
+fe_puzzle <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("THA","PHL","IDN")
+  ) %>% 
+  mutate(
+    # variables for OLS
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("log_dist_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    smctry = ifelse(importer != exporter, 0, 1),
+    
+    # PPML specific variables
+    log_dist_intra = log_dist * smctry,
+    intra_pair = ifelse(exporter == importer, exporter, "inter")
+  ) %>% 
+  spread(year, log_dist, fill = 0) %>% 
+  mutate(across(log_dist_2000:log_dist_2006, ~ .x * (1 - smctry)))
+
+tp_summary_app_2(
+  formula = "trade ~ ___ + log_dist_2000 + ___ + log_dist_2006 +   
+    cntg + lang + clny + intra_pair | exp_year + imp_year",
+  data = fe_puzzle,
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The change of the effects of distance (and it's associated p-value) shows a significant decrease in the effects of distance on trade between 2000 and 2006.
+b) The impact of internal distance on domestic sales is much smaller as compared to the distance effects on international trade.
+c) A and B allows us to conclude that this model solves the "distance puzzle".
+d) None of the above.
+
+## Regional Trade Agreements
+
+### Question 29
+
+Suppose that now we are interested in the phasing-in effects of RTAs. Complete the next code to fit the corresponding model:
+
+```{r q29, eval = FALSE}
+phsng_rta <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("CHN","JPN","KOR")
+  ) %>% 
+  mutate(
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("intl_border_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    intl_brdr = ifelse(exporter == importer, pair_id, "inter"),
+    intl_brdr_2 = ifelse(exporter == importer, 0, 1),
+    pair_id_2 = ifelse(exporter == importer, "0-intra", pair_id)
+  ) %>% 
+  spread(year, intl_brdr_2, fill = 0)
+
+phsng_rta <- phsng_rta %>% 
+  group_by(pair_id) %>% 
+  mutate(sum_trade = sum(trade)) %>% 
+  ungroup()
+
+tp_summary_app_3(
+  formula = "trade ~ ___ + rta + rta_lag4 + rta_lag8 + rta_lag12 |
+    exp_year + imp_year + pair_id_2",
+  data = filter(phsng_rta, sum_trade > 0),
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The total effect of RTAs between 2000 and 2006 in trade is positive and not statistically significant.
+b) show a significant decrease on trade.
+c) A and B.
+d) The model can't be estimated because of collinearity.
+
+### Question 30
+
+Suppose that now we are interested in the phasing-in effects of RTAs. Complete the next code to fit the corresponding model:
+
+```{r q30, eval = FALSE}
+phsng_rta <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("AUS","FRA","USA")
+  ) %>% 
+  mutate(
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("intl_border_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    intl_brdr = ifelse(exporter == importer, pair_id, "inter"),
+    intl_brdr_2 = ifelse(exporter == importer, 0, 1),
+    pair_id_2 = ifelse(exporter == importer, "0-intra", pair_id)
+  ) %>% 
+  spread(year, intl_brdr_2, fill = 0)
+
+phsng_rta <- phsng_rta %>% 
+  group_by(pair_id) %>% 
+  mutate(sum_trade = sum(trade)) %>% 
+  ungroup()
+
+tp_summary_app_3(
+  formula = "trade ~ ___ + rta + rta_lag4 + rta_lag8 + rta_lag12 |
+    exp_year + imp_year + pair_id_2",
+  data = filter(phsng_rta, sum_trade > 0),
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The total effect of RTAs between 2000 and 2006 in trade is positive and not statistically significant.
+b) Shows an significant decrease on trade.
+c) A and B.
+d) The model can't be estimated because of collinearity.
+
+### Question 31
+
+Suppose that now we are interested in the phasing-in effects of RTAs. Complete the next code to fit the corresponding model:
+
+```{r q31, eval = FALSE}
+phsng_rta <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("AUS","IND","CHN")
+  ) %>% 
+  mutate(
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("intl_border_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    intl_brdr = ifelse(exporter == importer, pair_id, "inter"),
+    intl_brdr_2 = ifelse(exporter == importer, 0, 1),
+    pair_id_2 = ifelse(exporter == importer, "0-intra", pair_id)
+  ) %>% 
+  spread(year, intl_brdr_2, fill = 0)
+
+phsng_rta <- phsng_rta %>% 
+  group_by(pair_id) %>% 
+  mutate(sum_trade = sum(trade)) %>% 
+  ungroup()
+
+tp_summary_app_3(
+  formula = "trade ~ ___ + rta + rta_lag4 + rta_lag8 + rta_lag12 |
+    exp_year + imp_year + pair_id_2",
+  data = filter(phsng_rta, sum_trade > 0),
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The total effect of RTAs between 2000 and 2006 in trade is statistically zero.
+b) The total effect of RTAs between 2000 and 2006 in trade is positive and statistically significant.
+c) A and B.
+d) The model can't be estimated because of collinearity.
+
+### Question 32
+
+Suppose that now we are interested in the phasing-in effects of RTAs. Complete the next code to fit the corresponding model:
+
+```{r q32, eval = FALSE}
+phsng_rta <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("THA","PHL","IDN")
+  ) %>% 
+  mutate(
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("intl_border_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    intl_brdr = ifelse(exporter == importer, pair_id, "inter"),
+    intl_brdr_2 = ifelse(exporter == importer, 0, 1),
+    pair_id_2 = ifelse(exporter == importer, "0-intra", pair_id)
+  ) %>% 
+  spread(year, intl_brdr_2, fill = 0)
+
+phsng_rta <- phsng_rta %>% 
+  group_by(pair_id) %>% 
+  mutate(sum_trade = sum(trade)) %>% 
+  ungroup()
+
+tp_summary_app_3(
+  formula = "trade ~ ___ + rta + rta_lag4 + rta_lag8 + rta_lag12 |
+    exp_year + imp_year + pair_id_2",
+  data = filter(phsng_rta, sum_trade > 0),
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The total effect of RTAs between 2000 and 2006 in trade is positive and not statistically significant.
+b) show a significant decrease on trade
+c) A and B.
+d) The model can't be estimated because of collinearity.
+
+### Question 33
+
+Suppose that now we are interested in globalization effects. Complete the next code to fit the corresponding model:
+
+```{r q33, eval = FALSE}
+gblzn_rta <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("CHN","JPN","KOR")
+  ) %>% 
+  mutate(
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("intl_border_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    intl_brdr = ifelse(exporter == importer, pair_id, "inter"),
+    intl_brdr_2 = ifelse(exporter == importer, 0, 1),
+    pair_id_2 = ifelse(exporter == importer, "0-intra", pair_id)
+  ) %>% 
+  spread(year, intl_brdr_2, fill = 0)
+
+gblzn_rta <- gblzn_rta %>% 
+  group_by(pair_id) %>% 
+  mutate(sum_trade = sum(trade)) %>% 
+  ungroup()
+
+tp_summary_app_3(
+  formula = "trade ~ ___ + rta + rta_lag4 + rta_lag8 + rta_lag12 +
+    intl_border_2000 + ___ + intl_border_2006 |
+    exp_year + imp_year + pair_id_2",
+  data = filter(gblzn_rta, sum_trade > 0),
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The total effect of RTAs between 2000 and 2006 in trade is negative and not statistically significant.
+b) Not all of the RTAs estimated coefficients are positive and significant, at least one is negative and/or not statistically significant.
+c) A and B.
+d) The model can't be estimated because of collinearity.
+
+### Question 34
+
+Suppose that now we are interested in globalization effects. Complete the next code to fit the corresponding model:
+
+```{r q34, eval = FALSE}
+gblzn_rta <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("AUS","FRA","USA")
+  ) %>% 
+  mutate(
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("intl_border_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    intl_brdr = ifelse(exporter == importer, pair_id, "inter"),
+    intl_brdr_2 = ifelse(exporter == importer, 0, 1),
+    pair_id_2 = ifelse(exporter == importer, "0-intra", pair_id)
+  ) %>% 
+  spread(year, intl_brdr_2, fill = 0)
+
+gblzn_rta <- gblzn_rta %>% 
+  group_by(pair_id) %>% 
+  mutate(sum_trade = sum(trade)) %>% 
+  ungroup()
+
+tp_summary_app_3(
+  formula = "trade ~ ___ + rta + rta_lag4 + rta_lag8 + rta_lag12 +
+    intl_border_2000 + ___ + intl_border_2006 |
+    exp_year + imp_year + pair_id_2",
+  data = filter(gblzn_rta, sum_trade > 0),
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The total effect of RTAs between 2000 and 2006 in trade is negative and not statistically significant.
+b) Not all of the RTAs estimated coefficients are positive and significant, at least one is negative and/or not statistically significant.
+c) A and B.
+d) The model can't be estimated because of collinearity.
+
+### Question 35
+
+Suppose that now we are interested in globalization effects. Complete the next code to fit the corresponding model:
+
+```{r q35, eval = FALSE}
+gblzn_rta <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("AUS","IND","CHN")
+  ) %>% 
+  mutate(
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("intl_border_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    intl_brdr = ifelse(exporter == importer, pair_id, "inter"),
+    intl_brdr_2 = ifelse(exporter == importer, 0, 1),
+    pair_id_2 = ifelse(exporter == importer, "0-intra", pair_id)
+  ) %>% 
+  spread(year, intl_brdr_2, fill = 0)
+
+gblzn_rta <- gblzn_rta %>% 
+  group_by(pair_id) %>% 
+  mutate(sum_trade = sum(trade)) %>% 
+  ungroup()
+
+tp_summary_app_3(
+  formula = "trade ~ ___ + rta + rta_lag4 + rta_lag8 + rta_lag12 +
+    intl_border_2000 + ___ + intl_border_2006 |
+    exp_year + imp_year + pair_id_2",
+  data = filter(gblzn_rta, sum_trade > 0),
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The total effect of RTAs between 2000 and 2006 in trade is negative and not statistically significant.
+b) Not all of the RTAs estimated coefficients are positive and significant, at least one is negative and/or not statistically significant.
+c) A and B.
+d) The model can't be estimated because of collinearity.
+
+### Question 36
+
+Suppose that now we are interested in globalization effects. Complete the next code to fit the corresponding model:
+
+```{r q36, eval = FALSE}
+gblzn_rta <- agtpa_applications %>% 
+  filter(
+    year %in% seq(2000, 2006, 2),
+    exporter %in% c("THA","PHL","IDN")
+  ) %>% 
+  mutate(
+    exp_year = paste0(exporter, year),
+    imp_year = paste0(importer, year),
+    year = paste0("intl_border_", year),
+    log_trade = log(trade),
+    log_dist = log(dist),
+    intl_brdr = ifelse(exporter == importer, pair_id, "inter"),
+    intl_brdr_2 = ifelse(exporter == importer, 0, 1),
+    pair_id_2 = ifelse(exporter == importer, "0-intra", pair_id)
+  ) %>% 
+  spread(year, intl_brdr_2, fill = 0)
+
+gblzn_rta <- gblzn_rta %>% 
+  group_by(pair_id) %>% 
+  mutate(sum_trade = sum(trade)) %>% 
+  ungroup()
+
+tp_summary_app_3(
+  formula = "trade ~ ___ + rta + rta_lag4 + rta_lag8 + rta_lag12 +
+    intl_border_2000 + ___ + intl_border_2006 |
+    exp_year + imp_year + pair_id_2",
+  data = filter(gblzn_rta, sum_trade > 0),
+  method = "ppml"
+)
+```
+
+What can we say about this model?
+
+a) The total effect of RTAs between 2000 and 2006 in trade is negative and not statistically significant.
+b) Not all of the RTAs estimated coefficients are positive and significant, at least one is negative and/or not statistically significant.
+c) A and B.
+d) The model can't be estimated because of collinearity.
+
+# General equilibrium
+
+## Baseline model
+
+### Question 37
+
+Suppose we are interested in solving the baseline model with *Australia* as the reference country. 
+
+Complete the next code in order to be able to pick the right alternative:
+
+```{r q37, eval = FALSE}
+# Baseline dataset
+
+baseline_data <- agtpa_applications %>% 
+  filter(year == 2006) %>% 
+  mutate(
+    log_dist = log(dist),
+    intl = ifelse(exporter != importer, 1, 0),
+    exporter = ifelse(exporter == "AUS", ___, exporter),
+    importer = ifelse(___)
+  ) %>% 
+  
+  # Create Yit
+  group_by(exporter, year) %>% 
+  mutate(y = sum(trade)) %>% 
+  
+  # Create Eit
+  group_by(___) %>% 
+  mutate(e = sum(trade)) %>% 
+  
+  # Create Er
+  ungroup() %>% 
+  mutate(e_r = max(ifelse(importer == ___, e, NA), na.rm = T))
+
+# Baseline model WITHOUT intercept
+
+fepois(
+  trade ~ ___ 0 + log_dist + cntg + intl | exporter + importer,
+  data = ___
+)
+```
+
+What can you say about the estimate and clustered standard error for the contiguity variable?
+
+a) The estimate is 0.674 and the std. error is 0.045.
+b) The estimate is 0.674 and the std. error is 0.140.
+c) We need more information.
+d) None of the above.
+
+### Question 38
+
+Suppose we are interested in solving the baseline model with *Australia* as the reference country. 
+
+Complete the next code in order to be able to pick the right alternative:
+
+```{r q38, eval = FALSE}
+# Baseline dataset
+
+baseline_data <- agtpa_applications %>% 
+  filter(year == 2006) %>% 
+  mutate(
+    log_dist = log(dist),
+    intl = ifelse(exporter != importer, 1, 0),
+    exporter = ifelse(exporter == "AUS", ___, exporter),
+    importer = ifelse(___)
+  ) %>% 
+  
+  # Create Yit
+  group_by(exporter, year) %>% 
+  mutate(y = sum(trade)) %>% 
+  
+  # Create Eit
+  group_by(___) %>% 
+  mutate(e = sum(trade)) %>% 
+  
+  # Create Er
+  ungroup() %>% 
+  mutate(e_r = max(ifelse(importer == ___, e, NA), na.rm = T))
+
+# Baseline model WITHOUT intercept
+
+fit_baseline_data <- fepois(
+  trade ~ log_dist + cntg + intl | exporter + importer,
+  data = ___
+  cluster = ___
+)
+```
+
+Which of the next codes is correct to join both the original baseline dataset and the fixed effects?
+
+a) `baseline_data %>% left_join(fixef(fit_baseline_data), "exporter")`.
+b) `baseline_data %>% mutate(fe_importer_cfl = fixef(fit_counterfactual_app1)$importer[importer])`
+c) `baseline_data %>% mutate(fe_exporter_cfl = fixef(fit_counterfactual_app1)$exporter[exporter])`.
+d) B and C.
+
+### Question 39
+
+Suppose we are interested in solving the baseline model with *Australia* as the reference country. 
+
+Complete the next code in order to be able to pick the right alternative:
+
+```{r q39, eval = FALSE}
+# Baseline dataset
+
+baseline_data <- agtpa_applications %>% 
+  filter(year == 2006) %>% 
+  mutate(
+    log_dist = log(dist),
+    intl = ifelse(exporter != importer, 1, 0),
+    exporter = ifelse(exporter == "AUS", ___, exporter),
+    importer = ifelse(___)
+  ) %>% 
+  
+  # Create Yit
+  group_by(exporter, year) %>% 
+  mutate(y = sum(trade)) %>% 
+  
+  # Create Eit
+  group_by(___) %>% 
+  mutate(e = sum(trade)) %>% 
+  
+  # Create Er
+  ungroup() %>% 
+  mutate(e_r = max(ifelse(importer == ___, e, NA), na.rm = T))
+
+# Baseline model WITHOUT intercept
+
+fit_baseline_data <- fepois(
+  trade ~ log_dist + cntg + intl | exporter + importer,
+  data = ___,
+  cluster = ___
+)
+
+# Fixed effects data
+
+baseline_data <- baseline_data %>%
+  mutate(
+    fe_exporter = fixef(___)$exporter[___],
+    fe_importer = fixef(___)$importer[___]
+  )
+
+# Obtain bilateral trade costs and multilateral resistances
+
+baseline_data <- baseline_data %>% 
+  mutate(
+    tij_bln = exp(___$___[___] * log_dist +
+                  ___ * cntg +
+                  ___ * intl),
+  
+    # outward multilateral resistance (omr)
+    omr_bln = y * (e_r / exp(fe_exporter)),
+    
+    # inward multilateral resistance (imr)
+    imr_bln = e / (exp(fe_importer) * e_r)
+  )
+
+# Obtain the estimated international trade for given output and expenditures
+
+baseline_data <- baseline_data %>% 
+  mutate(tradehat_bln = predict(___, ___)) %>% 
+  group_by(___) %>% 
+  mutate(xi_bln = sum(tradehat_bln * (exporter != importer))) %>% 
+  ungroup()
+```
+
+What is the estimated international trade for *Australia*:
+
+a) 77,417.
+b) 34,708.
+c) 109,914.
+d) We need more information.
+
+## Question 40
+
+Observe the next plot that summarizes a full GEPPML model. This plot depicts the changes of real GDP associated with the removal of international borders and decomposes these changes into effects on the consumers (via the inward multilateral resistances) and on the producers (via the factory-gate prices) for a sample of countries.
+
+```{r q40, echo=FALSE}
+ge_twb <- readRDS("ge_twb.rds")
+
+g <- ggplot(data = ge_twb) +
+  geom_point(aes(x = log_y, y = change_imr_full, color = "1")) +
+  geom_point(aes(x = log_y, y = change_price_full, color = "2")) +
+  geom_point(aes(x = log_y, y = rgdp, color = "3")) +
+  labs(
+    x = "Log value of output",
+    y = "Percent changes",
+    title = "Effects of abolishing international borders on real GDP"
+  ) +
+  scale_color_manual(
+    labels = c(
+      "-(inward multilateral resistances)",
+      "Factory-gate price",
+      "Real GDP"
+    ),
+    values = c("red", "green", "blue")
+  )
+
+g
+```
+
+What can you conclude based on what you learned about gravity models in this course?
+
+a) The *full endowment* general equilibrium effects on real GDP are large.
+b) The real GDP effects vary significantly across the countries in the sample.
+c) It is clear that for some countries there is a larger benefit from the removal of borders in terms of exports.
+d) All of the above.
